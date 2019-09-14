@@ -112,3 +112,16 @@ the faster configurations: (1) The flash chip must be replaced with one that sup
 faster read commands and (2) the IO2 and IO3 pins on the flash chip must be connected to
 the FPGA IO pins T9 and T8 (near the center of J3).
 
+### Upduino 2.0 port:
+
+I've been into FPGA's on and off for a couple of weeks now, adjust expectations accordingly :)
+
+This should work with an Upduino 2.0:
+- With it's PIN 35, and PIN J6 (12Mhz clock) connected. To give it a more stable clock. Probably/mayby should have a resistor for safety?
+- With PIN 46 connected to TX of an external UART
+- With PIN 45 connected to RX of an external UART
+- With GND connected between the Upduino and the external UART (obvious, but annoying to forget :) )
+
+I use a CP2102 as external UART, I've added 470ohm resistors inbetween just in cases.
+
+So far this does -not- work yet.
