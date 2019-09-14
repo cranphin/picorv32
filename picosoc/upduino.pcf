@@ -1,25 +1,21 @@
-# 12 MHz clock
-set_io clk        35
+# Upduino 2.0 based PIN layout
+# Some pins are manually connected, see comments
 
-# RS232
-set_io ser_rx      6
-set_io ser_tx      9
+# SPI Flash, Standard SPI only, remaining io PINS are (only) pulled high.
+set_io flash_csb 16
+set_io flash_clk 15
+set_io flash_io0 14
+set_io flash_io1 17
 
-# SPI Flash
-set_io flash_clk  15
-set_io flash_csb  16
-set_io flash_io0  14
-set_io flash_io1  17
-set_io flash_io2  12
-set_io flash_io3  13
+# Normal GPIO pins, left side
+set_io clk 35 # 12Mhz crystal: Make sure to wire PIN 35 to PIN J6 for this.
 
-# LEDs (PMOD 2)
-set_io led1       27
-set_io led2       25
-set_io led3       21
-set_io led4       23
-set_io led5       26
+# Normal GPIO pins, right side
+set_io ser_tx 45 # Chip TX: Connect PIN 45 to external uart RX for this
+set_io ser_rx 46 # Chip RX: Connect PIN 46 to external uart TX for this
 
-# Onboard LEDs
-set_io ledr_n     11
-set_io ledg_n     37
+# The LED pins are using the current controlled outputs
+# and are negative logic (write a 0 to turn on).
+set_io led_r    41 # On board RED Led
+set_io led_g    39 # On board GREEN Led
+set_io led_b    40 # On board BLUE Led

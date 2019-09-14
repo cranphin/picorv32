@@ -29,21 +29,14 @@ module upduino (
 	output ser_tx,
 	input ser_rx,
 
-	output led1,
-	output led2,
-	output led3,
-	output led4,
-	output led5,
-
-	output ledr_n,
-	output ledg_n,
+	output led_r,
+	output led_g,
+	output led_b,
 
 	output flash_csb,
 	output flash_clk,
 	inout  flash_io0,
-	inout  flash_io1,
-	inout  flash_io2,
-	inout  flash_io3
+	inout  flash_io1
 );
 	parameter integer MEM_WORDS = 32768;
 
@@ -54,30 +47,25 @@ module upduino (
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
-	wire [7:0] leds;
+	wire pwm_r;
+	wire pwm_g;
+	wire pwm_b;
 
-	assign led1 = leds[1];
-	assign led2 = leds[2];
-	assign led3 = leds[3];
-	assign led4 = leds[4];
-	assign led5 = leds[5];
-
-	assign ledr_n = !leds[6];
-	assign ledg_n = !leds[7];
+	assign pwm_r = gpio[0];	
+	assign pwm_g = gpio[1];	
+	assign pwm_b = gpio[2];	
 
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
 	wire flash_io1_oe, flash_io1_do, flash_io1_di;
-	wire flash_io2_oe, flash_io2_do, flash_io2_di;
-	wire flash_io3_oe, flash_io3_do, flash_io3_di;
 
 	SB_IO #(
-		.PIN_TYPE(6'b 1010_01),
-		.PULLUP(1'b 0)
-	) flash_io_buf [3:0] (
-		.PACKAGE_PIN({flash_io3, flash_io2, flash_io1, flash_io0}),
-		.OUTPUT_ENABLE({flash_io3_oe, flash_io2_oe, flash_io1_oe, flash_io0_oe}),
-		.D_OUT_0({flash_io3_do, flash_io2_do, flash_io1_do, flash_io0_do}),
-		.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
+		.PIN_TYPE(6'b 1010_01), // PIN_INPUT: Simple input pin + PIN_OUTPUT_TRISTATE: The output pin may be tristated using the enable
+		.PULLUP(1'b 0) // No pull up
+	) flash_io_buf [1:0] (
+		.PACKAGE_PIN({flash_io1, flash_io0}),
+		.OUTPUT_ENABLE({flash_io1_oe, flash_io0_oe}),
+		.D_OUT_0({flash_io1_do, flash_io0_do}),
+		.D_IN_0({flash_io1_di, flash_io0_di})
 	);
 
 	wire        iomem_valid;
@@ -88,7 +76,6 @@ module upduino (
 	reg  [31:0] iomem_rdata;
 
 	reg [31:0] gpio;
-	assign leds = gpio;
 
 	always @(posedge clk) begin
 		if (!resetn) begin
@@ -122,18 +109,12 @@ module upduino (
 
 		.flash_io0_oe (flash_io0_oe),
 		.flash_io1_oe (flash_io1_oe),
-		.flash_io2_oe (flash_io2_oe),
-		.flash_io3_oe (flash_io3_oe),
 
 		.flash_io0_do (flash_io0_do),
 		.flash_io1_do (flash_io1_do),
-		.flash_io2_do (flash_io2_do),
-		.flash_io3_do (flash_io3_do),
 
 		.flash_io0_di (flash_io0_di),
 		.flash_io1_di (flash_io1_di),
-		.flash_io2_di (flash_io2_di),
-		.flash_io3_di (flash_io3_di),
 
 		.irq_5        (1'b0        ),
 		.irq_6        (1'b0        ),
@@ -146,4 +127,22 @@ module upduino (
 		.iomem_wdata  (iomem_wdata ),
 		.iomem_rdata  (iomem_rdata )
 	);
+
+	// Use ICE40 RGB driver IP, to lower current a bit
+	SB_RGBA_DRV RGBA_DRIVER (
+	  .CURREN(1'b1),
+	  .RGBLEDEN(1'b1),
+	  .RGB0PWM(pwm_r),
+	  .RGB1PWM(pwm_g),
+	  .RGB2PWM(pwm_b),
+	  .RGB0(led_r),
+	  .RGB1(led_g),
+	  .RGB2(led_b)
+	);
+
+	defparam RGBA_DRIVER.CURRENT_MODE = "0b1"; // Half Current Mode
+	defparam RGBA_DRIVER.RGB0_CURRENT = "0b000001"; // 2 mA for Half Mode
+	defparam RGBA_DRIVER.RGB1_CURRENT = "0b000001"; // 2 mA for Half Mode
+	defparam RGBA_DRIVER.RGB2_CURRENT = "0b000001"; // 2 mA for Half Mode
+
 endmodule
