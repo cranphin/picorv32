@@ -2,6 +2,8 @@
 PicoRV32 - A Size-Optimized RISC-V CPU
 ======================================
 
+> NOTE: This is a fork with support for Upduino v2.0 in picosoc
+
 PicoRV32 is a CPU core that implements the [RISC-V RV32IMC Instruction Set](http://riscv.org/).
 It can be configured as RV32E, RV32I, RV32IC, RV32IM, or RV32IMC core, and optionally
 contains a built-in interrupt controller.
