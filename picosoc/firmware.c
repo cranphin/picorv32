@@ -688,7 +688,7 @@ void main()
 	print(" KiB\n");
 	print("\n");
 
-	cmd_memtest();
+	//cmd_memtest(); // test overwrites bss and data memory
 	print("\n");
 
 	cmd_print_spi_state();
@@ -754,7 +754,7 @@ void main()
 			case 'M':
 				cmd_memtest();
 				break;
-			case 'P':
+			case 'S':
 				cmd_print_spi_state();
 				break;
 			case 'e':
